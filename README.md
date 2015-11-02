@@ -12,5 +12,6 @@ ordering and differential expression analysis tools from monocle.
 To install hocuspocus, open a new R or RStudio session and type the following commands:
 
 install.packages("devtools")
+
 devtools::install_github("joeburns06/hocuspocus")
 
