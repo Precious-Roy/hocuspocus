@@ -59,8 +59,6 @@
 #' @param save Boolean specifying whether to save the resultant plots as a .tiff
 #'   file.
 #' @return Matrix of PCA plots for the first 10 PCs.
-#' @import ggplot2
-#' @import gridExtra
 #' @export
 
 pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, groups, values, gene, colors, logNumeric = TRUE, refPC = "PC1", alpha = 0.7, dotsize = 2, 

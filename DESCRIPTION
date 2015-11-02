@@ -13,18 +13,16 @@ Description: This package provides an easy-to-use and intuitive workflow for bas
     all of the temporal ordering and differential expression analysis tools from monocle.
 License: What license is it under?
 LazyData: TRUE
-Imports: ggplot2,
-    sva,
-    reshape2,
+Imports: reshape2,
     plyr,
-    monocle,
-    Seurat,
-    gridExtra,
     FactoMineR,
     NMF,
     RColorBrewer,
     cluster,
-    BiocGenerics,
-    Biobase
 URL: http://github.com/joeburns06/hocuspocus
 BugReports: http://github.com/joeburns06/hocuspocus/issues
+Depends: ggplot2 (>= 0.9.3.1),
+    sva,
+    gridExtra (>= 2.0.0),
+    monocle (>= 1.3.0),
+    Seurat (>= 1.2),
