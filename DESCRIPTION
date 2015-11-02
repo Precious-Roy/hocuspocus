@@ -24,6 +24,7 @@ Imports: ggplot2,
     NMF,
     RColorBrewer,
     cluster,
-    BiocGenerics
+    BiocGenerics,
+    Biobase
 URL: http://github.com/joeburns06/hocuspocus
 BugReports: http://github.com/joeburns06/hocuspocus/issues
