@@ -10,9 +10,8 @@ plots, clustering analysis, gap statistic caclulation, and all of the temporal
 ordering and differential expression analysis tools from monocle.
 
 
-To install hocuspocus, open a new R or RStudio session and type the following
-commands:
-
+To install hocuspocus and run it for the first time, open a new R or RStudio
+session and type the following commands:
 
 install.packages("devtools")
 
@@ -27,7 +26,14 @@ devtools::install_github("joeburns06/hocuspocus")
 library(hocuspocus)
 
 
-After this initial installation, you should only need the following command to
+After this initial installation, you should only need the following command to 
 load and attach hocuspocus in subsequent R sessions:
+
+library(hocuspocus)
+
+
+To obtain the latest version of hocuspocus, type the following commands:
+
+devtools::install_github("joeburns06/hocuspocus")
 
 library(hocuspocus)
