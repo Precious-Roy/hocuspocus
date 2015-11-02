@@ -53,6 +53,7 @@
 #' @param save Boolean specifying whether to save the resultant plot as a .tiff 
 #'   file.
 #' @return PCA plot for the two specified PCs.
+#' @export
 
 
 pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups, values, gene, colors, logNumeric = TRUE, CR = FALSE, alpha = 0.8, dotsize = 5, bubble = FALSE, 

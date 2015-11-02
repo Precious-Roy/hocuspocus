@@ -61,6 +61,7 @@
 #' @return Matrix of PCA plots for the first 10 PCs.
 #' @import ggplot2
 #' @import gridExtra
+#' @export
 
 pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, groups, values, gene, colors, logNumeric = TRUE, refPC = "PC1", alpha = 0.7, dotsize = 2, 
     bubble = FALSE, bubbleSizes, print = FALSE, printNum = 50, save = FALSE) {

@@ -65,6 +65,7 @@
 #' @param save Boolean specifying whether to save the resultant heatmap as a
 #'   .tiff file.
 #' @return Highly customizeable heatmap plot in a new window.
+#' @export
 
 heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = "hierarchical", cellGroups, cellOrder, geneGroups, geneOrder, center = NA, bars, 
     colors, logNumeric = TRUE, mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", "red4"), save = FALSE) {

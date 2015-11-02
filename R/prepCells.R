@@ -28,6 +28,7 @@
 #' @return ExpressionSet object modified according to the optional parameters 
 #'   specified above.  Note that it is highly recommended that you at least 
 #'   log-transform the data prior to any further downstream analysis.
+#' @export
 
 
 

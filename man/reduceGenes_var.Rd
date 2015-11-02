@@ -38,6 +38,8 @@ documentation for more details.  If exprThresh, varThresh, and seuratThresh
 are all TRUE, they are performed in that order.}
 
 \item{z_cutoff}{Numeric specifying the z-score cutoff for the Seurat method.}
+
+\item{...}{Pass more options to the Seurat function mean.var.plot()}
 }
 \value{
 ExpressionSet object with genes removed from the expression matrix

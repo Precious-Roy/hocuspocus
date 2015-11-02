@@ -32,6 +32,7 @@
 #' @param save Boolean specifying whether to save the resultant plot as a .tiff 
 #'   file.
 #' @return Blot plots for the specified groups and genes in a new window.
+#' @export
 
 
 blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, singleGroup, singleColor = "red", order = TRUE, save = FALSE) {

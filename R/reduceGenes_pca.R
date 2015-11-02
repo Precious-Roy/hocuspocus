@@ -42,6 +42,7 @@
 #'   original list of genes will still be present within fData.  Genes that pass
 #'   filter will be stored in fData as TRUE, genes that do not pass filter will 
 #'   be stored as FALSE.
+#' @export
 
 
 reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300, center = TRUE, scale = FALSE, print = FALSE, saveTable = FALSE) {

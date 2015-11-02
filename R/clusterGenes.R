@@ -21,6 +21,7 @@
 #' @return For each clustering method specified, a column is added to pData
 #'   containing the cluster information for each sample (clusters are designated
 #'   by roman numerals).
+#' @export
 
 
 clusterGenes <- function(cellData, k = 3, methods = c("hierarchical", "kmeans", "pam"), hier_dist = "euclidean", hier_clust = "ward") {

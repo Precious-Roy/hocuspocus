@@ -34,6 +34,7 @@
 #'   original list of genes will still be present within fData.  Genes that pass
 #'   filter will be stored in fData as TRUE, genes that do not pass filter will 
 #'   be stored as FALSE.
+#' @export
 
 reduceGenes_var <- function(cellData, exprGenes = TRUE, exprThresh = 1, cellThresh = 2, varThresh = TRUE, cv = 0.5, seuratThresh = FALSE, z_cutoff = 1.5, ...) {
     

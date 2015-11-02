@@ -32,6 +32,9 @@ which PCs to use.}
 the pca analysis.  The number of genes in the expression matrix will be
 reduced to this number.}
 
+\item{center}{Boolean specifying whether to the center the data prior to PCA.
+This is generally recommended.}
+
 \item{scale}{Boolean specifying whether the data should be scaled prior to
 PCA.  This is generally not recommended unless samples have different units
 (e.g. some samples are counts and some are TPMs).}

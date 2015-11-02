@@ -22,6 +22,7 @@
 #'   row names in this file match the column headers in the phenoData file.
 #' @return ExpressionSet object containg matrix of expression values, phenoData,
 #'   assayData, and experimentData.
+#' @export
 
 
 readCells <- function(assay, pheno, feature, experiment) {

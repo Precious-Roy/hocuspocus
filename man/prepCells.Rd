@@ -4,11 +4,10 @@
 \alias{prepCells}
 \title{Prepare matrix of expression values for downstream analyses}
 \usage{
-prepCells(cellData, LOD = 1, norm = TRUE, batch = FALSE,
-  batchGroup = "IsoID")
+prepCells(cellData, LOD = 1, norm = TRUE, batchGroup)
 }
 \arguments{
-\item{cellData}{ExpressionSet object created with readCells}
+\item{cellData}{ExpressionSet object created with readCells.}
 
 \item{LOD}{Limit of detection (numeric).  All expression values below this
 limit will be set to zero prior to the log2 transformation.  LOD is best
@@ -22,16 +21,12 @@ comparable across samples. See explanation of the
 estimateSizeFactorsForMatrix function within the DESeq package
 documentation for more explanation.}
 
-\item{batch}{Boolean specifying whether to eliminate potential batch effects
-amongst samples using the ComBat method within the sva package.  Note that
-ComBat is run after the log transformation, and some values within the
-ComBat-transformed expression matrix will be negative.}
-
 \item{batchGroup}{Character string specifying the name of the column header
 in pData where the batch group information is stored.  All samples within a
-particular batch group should have the same designation.  E.g. if there are
-four samples and two batch groups, the information in the batch group
-column could look like c('Batch1','Batch1','Batch2','Batch2').}
+particular batch group should have the same designation.  If no character
+string is specified, batch is not run.  E.g. if there are four samples and
+two batch groups, the information in the batch group column could look like
+c('Batch1','Batch1','Batch2','Batch2').}
 }
 \value{
 ExpressionSet object modified according to the optional parameters
