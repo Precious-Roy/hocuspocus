@@ -14,24 +14,26 @@ To install hocuspocus and run it for the first time, open a new R or RStudio
 session and type the following commands:
 
 ```
-* install.packages("devtools")
-* source("https://bioconductor.org/biocLite.R")
-* biocLite("sva")
-* devtools::install_github("satijalab/seurat")
-* devtools::install_github("joeburns06/hocuspocus")
-* library(hocuspocus)
+install.packages("devtools")
+source("https://bioconductor.org/biocLite.R")
+biocLite("sva")
+devtools::install_github("satijalab/seurat")
+devtools::install_github("joeburns06/hocuspocus")
+library(hocuspocus)
 ```
 
 ## Subsequent R sessions
 After this initial installation, you should only need the following command to 
 load and attach hocuspocus in subsequent R sessions:
 
+```
 library(hocuspocus)
-
+```
 
 ## Getting the latest version of hocuspocus
 To obtain the latest version of hocuspocus, type the following commands:
 
+```
 devtools::install_github("joeburns06/hocuspocus")
-
 library(hocuspocus)
+```
