@@ -1,0 +1,28 @@
+Package: hocuspocus
+Type: Package
+Title: A Suite of Single-Cell RNA-Seq Analysis Tools Built for Dummy Biologists
+Version: 0.1
+Date: 2015-09-28
+Authors@R: person("Joe", "Burns", email = "joeburns06@gmail.com", role = c("aut", "cre"))
+Description: This package provides an easy-to-use and intuitive workflow for analyzing 
+    single-cell RNA-Seq data.  It combines custom R-scripts with functions from available
+    packages.  Particular emphasis is placed on data presentation and visualization, with
+    a variety of options for controlling the appearance of plots.  Tools include selection
+    of important expressed genes based on variance and PCA, heatmaps with color bars, blot 
+    plots, 1D, 2D, and 3D PCA plots, clustering analysis, gap statistic caclulation, and 
+    all of the temporal ordering and differential expression analysis tools from monocle.
+License: What license is it under?
+LazyData: TRUE
+Imports: ggplot2,
+    sva,
+    reshape2,
+    plyr,
+    monocle,
+    Seurat,
+    gridExtra,
+    FactoMineR,
+    NMF,
+    RColorBrewer,
+    cluster
+URL: http://github.com/joeburns06/hocuspocus
+BugReports: http://github.com/joeburns06/hocuspocus/issues
