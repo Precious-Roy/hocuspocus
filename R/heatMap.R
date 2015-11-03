@@ -67,8 +67,9 @@
 #' @return Highly customizeable heatmap plot in a new window.
 #' @export
 
-heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = "hierarchical", cellGroups, cellOrder, geneGroups, geneOrder, center = NA, bars, 
-    colors, logNumeric = TRUE, mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", "red4"), save = FALSE) {
+heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = "hierarchical", cellGroups, cellOrder, geneGroups, 
+    geneOrder, center = NA, bars, colors, logNumeric = TRUE, mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", 
+        "red4"), save = FALSE) {
     
     if (.Platform$OS.type == "windows") {
         quartz <- function() windows()
@@ -79,7 +80,7 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
     exprs_table <- exprs(cellData)
     
     if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to heatMap", call. = FALSE)
+        warning("It would be wise to run prepCells prior to heatMap.", call. = FALSE)
     }
     
     if (!missing(bars)) {
@@ -110,7 +111,8 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
             groupColors_list <- list()
             for (i in 1:length(colors)) {
                 groupColors_temp <- data.frame(groupColors[, i])
-                groupColors_temp <- as.character(groupColors_temp[!apply(is.na(groupColors_temp) | groupColors_temp == "", 1, all), ])
+                groupColors_temp <- as.character(groupColors_temp[!apply(is.na(groupColors_temp) | groupColors_temp == "", 1, 
+                  all), ])
                 
                 if (is.factor(groupData[, i]) | is.character(groupData[, i])) {
                   names(groupColors_temp) <- as.vector(unique(groupData[, i]))
@@ -201,26 +203,26 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
     if (clusterCellsBy == "hierarchical" && clusterGenesBy == "hierarchical") {
         
         quartz()
-        NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, annColors = annColors, color = mapColors, 
-            breaks = center, width = 8, height = 10, fontsize = 10)
+        NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, 
+            annColors = annColors, color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10)
         
         
         if (save == TRUE) {
-            a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, annColors = annColors, 
-                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+            a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, 
+                annColors = annColors, color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
         }
     }
     
     if (clusterCellsBy == "groups" && clusterGenesBy == "hierarchical") {
         
         quartz()
-        NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-            width = 8, height = 10, fontsize = 10)
+        NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, 
+            color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10)
         
         
         if (save == TRUE) {
-            a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-                width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+            a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, 
+                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
         }
     }
     
@@ -229,26 +231,26 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
     if (clusterCellsBy == "groups" && clusterGenesBy == "groups") {
         
         quartz()
-        NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-            width = 8, height = 10, fontsize = 10)
+        NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, 
+            color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10)
         
         
         if (save == TRUE) {
-            a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = genes, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-                width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+            a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = genes, annCol = annCol, annColors = annColors, 
+                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
         }
     }
     
     if (clusterCellsBy == "hierarchical" && clusterGenesBy == "groups") {
         
         quartz()
-        NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, color = mapColors, 
-            breaks = center, width = 8, height = 10, fontsize = 10)
+        NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, 
+            annColors = annColors, color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10)
         
         
         if (save == TRUE) {
-            a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, 
-                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+            a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, 
+                annColors = annColors, color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
         }
     }
     

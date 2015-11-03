@@ -42,7 +42,7 @@ blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, sing
     }
     
     if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to heatMap", call. = FALSE)
+        warning("It would be wise to run prepCells prior to blotPlot.", call. = FALSE)
     }
     
     if (missing(singleGroup) && missing(groups)) {
@@ -98,12 +98,13 @@ blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, sing
             levels(plotme$group) <- levels(plotme$group)[order(levels(plotme$group))]
         }
         
-        g1 <- ggplot(subset(plotme, (group == singleGroup)), aes(x = genez, y = values)) + geom_violin(adjust = 0.5, trim = F, scale = "width", fill = singleColor, 
-            alpha = 0.3, color = "darkgray", width = 0.5) + geom_point(position = position_jitter(w = 0.1, h = 0.1), size = 1.3, color = "grey26") + scale_fill_manual(values = group_colors) + 
-            theme(legend.position = "none", axis.text.x = element_text(angle = 90, color = "black", size = 12), axis.text.y = element_text(color = "black", size = 12), 
-                axis.title.x = element_blank()) + labs(y = "Expression") + theme(axis.title.y = element_text(size = 17)) + theme(plot.background = element_blank(), 
-            panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), panel.background = element_blank(), strip.background = element_blank()) + 
-            theme(axis.line = element_line(color = "black"), axis.ticks.x = element_blank())
+        g1 <- ggplot(subset(plotme, (group == singleGroup)), aes(x = genez, y = values)) + geom_violin(adjust = 0.5, trim = F, 
+            scale = "width", fill = singleColor, alpha = 0.3, color = "darkgray", width = 0.5) + geom_point(position = position_jitter(w = 0.1, 
+            h = 0.1), size = 1.3, color = "grey26") + scale_fill_manual(values = group_colors) + theme(legend.position = "none", 
+            axis.text.x = element_text(angle = 90, color = "black", size = 12), axis.text.y = element_text(color = "black", size = 12), 
+            axis.title.x = element_blank()) + labs(y = "Expression") + theme(axis.title.y = element_text(size = 17)) + theme(plot.background = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), panel.background = element_blank(), 
+            strip.background = element_blank()) + theme(axis.line = element_line(color = "black"), axis.ticks.x = element_blank())
         if (save == TRUE) {
             ggsave(g1, filename = "DE Ute Diff Cells.tiff", height = 20, width = 8)
         }
@@ -119,11 +120,13 @@ blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, sing
             levels(plotme$group) <- levels(plotme$group)[order(levels(plotme$group))]
         }
         
-        g1 <- ggplot(plotme, aes(x = group, y = values)) + geom_violin(adjust = 0.5, trim = F, scale = "width", aes(fill = group), color = "black", alpha = 0.8, 
-            size = 0.5) + geom_point(position = position_jitter(w = 0.1, h = 0.1), size = 1.2, color = "black") + scale_fill_manual(values = group_colors) + facet_wrap(~genez, 
-            nrow = round(length(genes)/cols)) + theme(legend.position = "none", axis.text.x = element_text(angle = 50, hjust = 1, size = 15, color = "black"), axis.title.x = element_blank(), 
-            axis.text.y = element_text(size = 12, color = "black"), strip.text.x = element_text(size = 13, face = "italic")) + labs(y = "Expression") + theme(panel.background = element_rect(colour = "black", 
-            fill = "white"), strip.background = element_rect(color = "black", size = 0.5), axis.title.y = element_text(size = 20, vjust = 1.5))
+        g1 <- ggplot(plotme, aes(x = group, y = values)) + geom_violin(adjust = 0.5, trim = F, scale = "width", aes(fill = group), 
+            color = "black", alpha = 0.8, size = 0.5) + geom_point(position = position_jitter(w = 0.1, h = 0.1), size = 1.2, 
+            color = "black") + scale_fill_manual(values = group_colors) + facet_wrap(~genez, nrow = round(length(genes)/cols)) + 
+            theme(legend.position = "none", axis.text.x = element_text(angle = 50, hjust = 1, size = 15, color = "black"), axis.title.x = element_blank(), 
+                axis.text.y = element_text(size = 12, color = "black"), strip.text.x = element_text(size = 13, face = "italic")) + 
+            labs(y = "Expression") + theme(panel.background = element_rect(colour = "black", fill = "white"), strip.background = element_rect(color = "black", 
+            size = 0.5), axis.title.y = element_text(size = 20, vjust = 1.5))
         if (save == TRUE) {
             ggsave(g1, filename = "DE Ute Diff Cells.tiff", height = 20, width = 8)
         }

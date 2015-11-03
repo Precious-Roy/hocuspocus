@@ -3,6 +3,7 @@
 export(blotPlot)
 export(clusterCells)
 export(clusterGenes)
+export(gapStats)
 export(heatMap)
 export(pca2D)
 export(pcaMatrix)

@@ -26,7 +26,7 @@
 clusterCells <- function(cellData, k = 3, methods = c("hierarchical", "kmeans", "pam"), hier_dist = "euclidean", hier_clust = "ward") {
     
     if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to reduceGenes_pca", call. = FALSE)
+        warning("It would be wise to run prepCells prior to clusterCells.", call. = FALSE)
     }
     
     x <- exprs(cellData)

@@ -36,10 +36,11 @@
 #'   be stored as FALSE.
 #' @export
 
-reduceGenes_var <- function(cellData, exprGenes = TRUE, exprThresh = 1, cellThresh = 2, varThresh = TRUE, cv = 0.5, seuratThresh = FALSE, z_cutoff = 1.5, ...) {
+reduceGenes_var <- function(cellData, exprGenes = TRUE, exprThresh = 1, cellThresh = 2, varThresh = TRUE, cv = 0.5, seuratThresh = FALSE, 
+    z_cutoff = 1.5, ...) {
     
     if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to reduceGenes_var", call. = FALSE)
+        warning("It would be wise to run prepCells prior to reduceGenes_var.", call. = FALSE)
     }
     
     log.data <- exprs(cellData)
@@ -82,7 +83,8 @@ reduceGenes_var <- function(cellData, exprGenes = TRUE, exprThresh = 1, cellThre
         
         quartz()
         
-        nbt <- mean.var.plot(nbt, y.cutoff = z_cutoff, x.low.cutoff = 1, x.high.cutoff = 14, fxn.x = expMean, fxn.y = logVarDivMean, ...)
+        nbt <- mean.var.plot(nbt, y.cutoff = z_cutoff, x.low.cutoff = 1, x.high.cutoff = 14, fxn.x = expMean, fxn.y = logVarDivMean, 
+            ...)
         
         log.data <- log.data[nbt@var.genes, ]
         

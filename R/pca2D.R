@@ -56,15 +56,15 @@
 #' @export
 
 
-pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups, values, gene, colors, logNumeric = TRUE, CR = FALSE, alpha = 0.8, dotsize = 5, bubble = FALSE, 
-    bubbleSizes, save = FALSE) {
+pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups, values, gene, colors, logNumeric = TRUE, CR = FALSE, 
+    alpha = 0.8, dotsize = 5, bubble = FALSE, bubbleSizes, save = FALSE) {
     
     if (.Platform$OS.type == "windows") {
         quartz <- function() windows()
     }
     
     if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to pca2D", call. = FALSE)
+        warning("It would be wise to run prepCells prior to pca2D.", call. = FALSE)
     }
     
     if (!missing(groups) && !all((groups %in% colnames(pData(cellData))))) {
@@ -116,18 +116,20 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
     if (missing(values) && missing(gene)) {
         
         if (bubble == TRUE) {
-            warning("Bubble sizes currently reflect the number of levels in groups and are not adding additional information to the plot.", call. = FALSE)
+            warning("Bubble sizes currently reflect the number of levels in groups and are not adding additional information to the plot.", 
+                call. = FALSE)
         }
         
         if (CR == TRUE) {
             samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Groups", 
-                values = cell_colors) + scale_size_manual(name = "Groups", values = sizes) + guides(fill = guide_legend("Groups"), color = guide_legend("Groups"), 
-                size = guide_legend("Groups")) + theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
-                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, vjust = 1.4), 
-                legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + 
-                stat_ellipse(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "factor(Cell_Type)"), geom = "polygon", level = 0.95, alpha = 0.3, 
-                  show_guide = F)
+                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
+                scale_fill_manual(name = "Groups", values = cell_colors) + scale_size_manual(name = "Groups", values = sizes) + 
+                guides(fill = guide_legend("Groups"), color = guide_legend("Groups"), size = guide_legend("Groups")) + theme_bw() + 
+                theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + stat_ellipse(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], 
+                fill = "factor(Cell_Type)"), geom = "polygon", level = 0.95, alpha = 0.3, show_guide = F)
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
@@ -137,12 +139,13 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
         
         if (CR == FALSE) {
             samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Groups", 
-                values = cell_colors) + scale_size_manual(name = "Groups", values = sizes) + guides(fill = guide_legend("Groups"), color = guide_legend("Groups"), 
-                size = guide_legend("Groups")) + theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
-                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, vjust = 1.4), 
-                legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + 
-                scale_color_gradient2()
+                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
+                scale_fill_manual(name = "Groups", values = cell_colors) + scale_size_manual(name = "Groups", values = sizes) + 
+                guides(fill = guide_legend("Groups"), color = guide_legend("Groups"), size = guide_legend("Groups")) + theme_bw() + 
+                theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + scale_color_gradient2()
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
@@ -174,12 +177,13 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
         
         if (bubble == TRUE) {
             
-            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "Values", 
+                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
+                scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
                 theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
-                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, vjust = 1.4), 
-                legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + 
-                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
@@ -189,11 +193,12 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
         
         if (bubble == FALSE) {
             
-            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + 
-                theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
-                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 
-                  1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
+            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = "Values"), 
+                size = dotsize, shape = 21, color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + 
+                theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
@@ -226,12 +231,13 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
         
         if (bubble == TRUE) {
             
-            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = gene, size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend(title = gene), size = guide_legend("Groups")) + 
+            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = gene, 
+                size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
+                scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend(title = gene), size = guide_legend("Groups")) + 
                 theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
-                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, vjust = 1.4), 
-                legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + 
-                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
@@ -241,11 +247,12 @@ pca2D <- function(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
         
         if (bubble == FALSE) {
             
-            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + theme_bw() + theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + 
-                theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
-                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), plot.margin = grid::unit(c(2.1, 1.1, 
-                  1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
+            samp_PCA <- ggplot(comp.cell.type1) + geom_point(aes_string(x = colnames(comp1)[1], y = colnames(comp1)[2], fill = gene), 
+                size = dotsize, shape = 21, color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + theme_bw() + 
+                theme(legend.key = element_rect(colour = F), legend.background = element_rect(fill = NA)) + theme(axis.text.x = element_text(size = 15), 
+                axis.text.y = element_text(size = 15), axis.title.x = element_text(size = 25, vjust = -0.8), axis.title.y = element_text(size = 25, 
+                  vjust = 1.4), legend.text = element_text(size = 13), legend.title = element_text(size = 15, face = "bold"), 
+                plot.margin = grid::unit(c(2.1, 1.1, 1.1, 1.1), "cm")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2])
             quartz()
             print(samp_PCA)
             if (save == TRUE) {
