@@ -93,11 +93,6 @@ blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, sing
         plotme <- transform(stacked_table, group = gsub("\\..*$", "", stacked_table$ind), genez = stacked_genes)
         plotme$genez <- factor(plotme$genez)
         
-        if (order == TRUE) {
-            plotme <- plotme[order(plotme$ind), ]
-            levels(plotme$group) <- levels(plotme$group)[order(levels(plotme$group))]
-        }
-        
         g1 <- ggplot(subset(plotme, (group == singleGroup)), aes(x = genez, y = values)) + geom_violin(adjust = 0.5, trim = F, 
             scale = "width", fill = singleColor, alpha = 0.3, color = "darkgray", width = 0.5) + geom_point(position = position_jitter(w = 0.1, 
             h = 0.1), size = 1.3, color = "grey26") + scale_fill_manual(values = group_colors) + theme(legend.position = "none", 
@@ -111,13 +106,17 @@ blotPlot <- function(cellData, genes, groups = "GroupID", colors, cols = 3, sing
     }
     
     if (!missing(groups) && missing(singleGroup)) {
+        
         plotme <- transform(stacked_table, group = gsub("\\..*$", "", stacked_table$ind), genez = stacked_genes)
         plotme$group <- factor(plotme$group, levels = unique(plotme$group), ordered = FALSE)
         plotme$genez <- factor(plotme$genez, levels = unique(plotme$genez), ordered = FALSE)
         
         if (order == TRUE) {
-            plotme <- plotme[order(plotme$ind), ]
-            levels(plotme$group) <- levels(plotme$group)[order(levels(plotme$group))]
+          g <- plotme$group
+          g <- factor(g[order(plotme$ind)],levels(g)[order(levels(g))])
+          group_colors <- group_colors[order(levels(plotme$group))]
+          plotme <- plotme[order(plotme$ind),c("values","ind","genez")]
+          plotme$group <- g  
         }
         
         g1 <- ggplot(plotme, aes(x = group, y = values)) + geom_violin(adjust = 0.5, trim = F, scale = "width", aes(fill = group), 

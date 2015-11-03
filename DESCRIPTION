@@ -1,8 +1,8 @@
 Package: hocuspocus
 Type: Package
 Title: A Suite of Single-Cell RNA-Seq Analysis Tools Built for Dummy Biologists
-Version: 1.0.0
-Date: 2015-09-28
+Version: 1.1.1
+Date: 2015-11-3
 Authors@R: person("Joe", "Burns", email = "joeburns06@gmail.com", role = c("aut", "cre"))
 Description: This package provides an easy-to-use and intuitive workflow for basic analysis of 
     single-cell RNA-Seq data.  It combines custom functions with functions from available 
