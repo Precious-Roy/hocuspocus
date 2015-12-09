@@ -1,7 +1,7 @@
 Package: hocuspocus
 Type: Package
 Title: A Suite of Single-Cell RNA-Seq Analysis Tools Built for Dummy Biologists
-Version: 1.1.1
+Version: 1.2.1
 Date: 2015-11-3
 Authors@R: person("Joe", "Burns", email = "joeburns06@gmail.com", role = c("aut", "cre"))
 Description: This package provides an easy-to-use and intuitive workflow for basic analysis of 
@@ -9,8 +9,7 @@ Description: This package provides an easy-to-use and intuitive workflow for bas
     packages.  Particular emphasis is placed on data presentation and visualization, with
     a variety of options for controlling the appearance of plots.  Currently, tools include selection
     of important expressed genes based on variance and PCA, heatmaps with color bars, blot 
-    plots, 1D, 2D, and 3D PCA plots, clustering analysis, gap statistic caclulation, and 
-    all of the temporal ordering and differential expression analysis tools from monocle.
+    plots, 1D and 2D PCA plots, clustering analysis, and gap statistic caclulation.
 License: What license is it under?
 LazyData: TRUE
 Imports: reshape2,
@@ -18,7 +17,8 @@ Imports: reshape2,
     FactoMineR,
     NMF,
     RColorBrewer,
-    cluster,
+    fastICA,
+    scales
 URL: http://github.com/joeburns06/hocuspocus
 BugReports: http://github.com/joeburns06/hocuspocus/issues
 Depends: ggplot2 (>= 0.9.3.1),
@@ -26,3 +26,4 @@ Depends: ggplot2 (>= 0.9.3.1),
     gridExtra (>= 2.0.0),
     monocle (>= 1.3.0),
     Seurat (>= 1.2),
+    cluster

@@ -4,10 +4,10 @@
 \alias{pcaMatrix}
 \title{Generate a series of plots comparing the first 10 PCs of a PCA analysis.}
 \usage{
-pcaMatrix(cellData, scree = FALSE, center = TRUE, scale = FALSE, groups,
-  values, gene, colors, logNumeric = TRUE, refPC = "PC1", alpha = 0.7,
-  dotsize = 2, bubble = FALSE, bubbleSizes, print = FALSE,
-  printNum = 50, save = FALSE)
+pcaMatrix(cellData, scree = FALSE, center = TRUE, scale = FALSE,
+  ICA = FALSE, groups, values, gene, colors, logNumeric = TRUE,
+  refPC = "PC1", alpha = 0.7, dotsize = 2, bubble = FALSE, bubbleSizes,
+  print = FALSE, printNum = 50, save = FALSE)
 }
 \arguments{
 \item{cellData}{ExpressionSet object created with readCells (and preferably
@@ -43,12 +43,8 @@ Gene and values cannot be specified simultaneously.  If groups and gene are
 both specified, gene will be used for coloring.  Set bubble to TRUE to
 display group information as well.}
 
-\item{colors}{Character string specifying the title of the column in pData
-that contains the colors to be used for plotting.  If groups is specified,
-length of colors should be equal to the number of levels in groups.  The
-order of colors corresponds to the order of factor levels in groups.  If
-values or gene is specified, length of colors should be 2, or else a
-default black-to-yellow color gradient will be used.}
+\item{colors}{Vector of character strings of length 2 specifying the color range for values or gene.  If
+not specified, a default black-to-yellow color gradient will be used.}
 
 \item{logNumeric}{Boolean specifying whether the numbers in values should be
 transformed to log2 space.}

@@ -29,12 +29,8 @@
 #'   Gene and values cannot be specified simultaneously.  If groups and gene are
 #'   both specified, gene will be used for coloring.  Set bubble to TRUE to 
 #'   display group information as well.
-#' @param colors Character string specifying the title of the column in pData
-#'   that contains the colors to be used for plotting.  If groups is specified,
-#'   length of colors should be equal to the number of levels in groups.  The
-#'   order of colors corresponds to the order of factor levels in groups.  If
-#'   values or gene is specified, length of colors should be 2, or else a
-#'   default black-to-yellow color gradient will be used.
+#' @param colors Vector of character strings of length 2 specifying the color range for values or gene.  If
+#'   not specified, a default black-to-yellow color gradient will be used.
 #' @param logNumeric Boolean specifying whether the numbers in values should be 
 #'   transformed to log2 space.
 #' @param refPC Character string specifying the PC to be used as the reference 
@@ -61,16 +57,16 @@
 #' @return Matrix of PCA plots for the first 10 PCs.
 #' @export
 
-pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, groups, values, gene, colors, logNumeric = TRUE, 
-    refPC = "PC1", alpha = 0.7, dotsize = 2, bubble = FALSE, bubbleSizes, print = FALSE, printNum = 50, save = FALSE) {
+pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, ICA=FALSE, groups, values, gene, colors, logNumeric = TRUE, refPC = "PC1", alpha = 0.7, dotsize = 2, 
+    bubble = FALSE, bubbleSizes, print = FALSE, printNum = 50, save = FALSE) {
     
     if (.Platform$OS.type == "windows") {
         quartz <- function() windows()
     }
     
-    if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to pcaMatrix.", call. = FALSE)
-    }
+  if (cellData@logData$prepCells[1] == "No") {
+    warning("It would be wise to run prepCells prior to pcaMatrix.", call. = FALSE)
+  }
     
     if (!missing(groups) && !all((groups %in% colnames(pData(cellData))))) {
         stop("The column name specified for groups is not found in phenoData. If absent, add a column to phenoData containing the group for each cell, even if it only consists of 1 group.", 
@@ -78,25 +74,16 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
     }
     
     if (!missing(values) && !all((values %in% colnames(pData(cellData))))) {
-        stop("The column name specified for values is not found in phenoData. If absent, add a column of colors to phenoData that is equal in length to the number of levels in groups.", 
+        stop("The column name specified for values is not found in phenoData.", 
             call. = FALSE)
     }
     
-    if (!missing(colors) && !all((colors %in% colnames(pData(cellData))))) {
-        stop("The column name specified for colors is not found in phenoData. If absent, add a column of colors to phenoData that is equal in length to the number of levels in groups.", 
+    if (!missing(groups) && !all((names(cData(cellData)) %in% colnames(pData(cellData))))) {
+        stop("Some or all of the column names in colorData do not have matching column names in phenoData.", 
             call. = FALSE)
     }
     
     PCA.allgenes <- prcomp(t(exprs(cellData)), center = center, scale. = scale, save = FALSE)
-    
-    if (missing(colors)) {
-        cell_colors <- "blue"
-    }
-    
-    if (!missing(colors)) {
-        cell_colors <- data.frame(pData(cellData)[, colors], stringsAsFactors = FALSE)
-        cell_colors <- as.character(cell_colors[!apply(is.na(cell_colors) | cell_colors == "", 1, all), ])
-    }
     
     if (scree == TRUE) {
         
@@ -110,15 +97,27 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
         }
     }
     
+    if (ICA==FALSE){
+      comp2 <- data.frame(PCA.allgenes$x[, 1:10])
+      comp.cell.type2 <- comp2
+    }
     
-    comp2 <- data.frame(PCA.allgenes$x[, 1:10])
-    comp.cell.type2 <- comp2
+    
+    if (ICA==TRUE){
+      ica1 <- fastICA::fastICA(t(exprs_table), 10)
+      comp2 <- data.frame(ica1$S[, 1:10])
+      comp2["y"] <- seq(0, 0, length.out = length(samples[, groups]))
+      comp.cell.type2 <- comp2
+    }
     
     if (missing(groups)) {
-        comp.cell.type2["Cell_Type"] <- rep("All", nrow(pData(cellData)))
+      cell_colors <- "blue"
+      comp.cell.type2["Cell_Type"] <- rep("All", nrow(pData(cellData)))
     }
     
     if (!missing(groups)) {
+        cell_colors <- data.frame(cellData@colorData[[groups]], stringsAsFactors = FALSE)
+        cell_colors <- as.character(cell_colors[!apply(is.na(cell_colors) | cell_colors == "", 1, all), ])
         groupz <- data.frame(pData(cellData)[, groups], stringsAsFactors = FALSE)
         comp.cell.type2["Cell_Type"] <- factor(groupz[, colnames(groupz)], levels = unique(groupz[, colnames(groupz)]), ordered = FALSE)
     }
@@ -143,55 +142,45 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
     if (missing(values) && missing(gene)) {
         
         if (bubble == TRUE) {
-            warning("Bubble sizes currently reflect the number of levels in groups and are not adding additional information to the plot.", 
-                call. = FALSE)
+            warning("Bubble sizes currently reflect the number of levels in groups and are not adding additional information to the plot.", call. = FALSE)
         }
         
         
-        g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
-        g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", 
-            size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), shape = 21, color = "black", alpha = alpha) + 
-            scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", values = sizes) + 
-            guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
+        g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
+            shape = 21, color = "black", alpha = alpha) + scale_fill_manual(name = "Cell Type", values = cell_colors) + scale_size_manual(name = "Cell Type", 
+            values = sizes) + guides(fill = guide_legend("Cell Type"), color = guide_legend("Cell Type"), size = guide_legend("Cell Type")) + theme(legend.key.size = grid::unit(0.35, 
             "cm"), legend.text = element_text(size = 8))
         
         if (save == TRUE) {
@@ -210,6 +199,10 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
             stop("Cannot specify both values and gene.", call. = FALSE)
         }
         
+        if (!missing(colors)){
+          cell_colors <- colors
+        }
+      
         if (length(cell_colors) != 2) {
             warning("Specify a vector of two colors to control color, using default colors instead", call. = FALSE)
             cell_colors[1:2] <- c("black", "yellow")
@@ -223,41 +216,32 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
         
         if (bubble == TRUE) {
             g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = "Values", size = "factor(Cell_Type,levels=unique(Cell_Type),ordered=FALSE)"), 
-                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), 
-                size = guide_legend("Groups")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
-                "cm"), legend.text = element_text(size = 8))
+                shape = 21, color = "black", alpha = alpha) + scale_size_manual(name = "Groups", values = sizes) + guides(color = guide_legend("Values"), size = guide_legend("Groups")) + 
+                scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
             
             if (save == TRUE) {
                 PCA_grob <- arrangeGrob(g1, g2, g3, g4, g5, g6, g7, g8, g9, ncol = 3)
@@ -270,33 +254,33 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
         }
         
         if (bubble == FALSE) {
-            g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = "Values"), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
+            g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = "Values"), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = "Values")) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
             
             if (save == TRUE) {
                 PCA_grob <- arrangeGrob(g1, g2, g3, g4, g5, g6, g7, g8, g9, ncol = 3)
@@ -320,6 +304,10 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
             stop("Specified gene is not present in expression table", call. = FALSE)
         }
         
+        if (!missing(colors)){
+          cell_colors <- colors
+        }
+      
         if (length(cell_colors) != 2) {
             warning("Specify a vector of two colors to control color, using default colors instead", call. = FALSE)
             cell_colors[1:2] <- c("black", "yellow")
@@ -378,33 +366,33 @@ pcaMatrix <- function(cellData, scree = FALSE, center = TRUE, scale = FALSE, gro
         }
         
         if (bubble == FALSE) {
-            g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
-            g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = gene), size = dotsize, shape = 21, 
-                color = "black", alpha = alpha) + guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], 
-                high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, "cm"), legend.text = element_text(size = 8))
+            g1 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC1", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g2 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC2", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g3 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC3", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g4 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC4", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g5 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC5", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g6 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC6", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g7 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC7", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g8 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC8", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
+            g9 <- ggplot(comp.cell.type2) + geom_point(aes_string(x = refPC, y = "PC9", fill = gene), size = dotsize, shape = 21, color = "black", alpha = alpha) + 
+                guides(color = guide_legend(title = gene)) + scale_fill_gradient(low = cell_colors[1], high = cell_colors[2]) + theme(legend.key.size = grid::unit(0.35, 
+                "cm"), legend.text = element_text(size = 8))
             
             if (save == TRUE) {
                 PCA_grob <- arrangeGrob(g1, g2, g3, g4, g5, g6, g7, g8, g9, ncol = 3)

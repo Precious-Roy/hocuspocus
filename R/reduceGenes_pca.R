@@ -45,15 +45,13 @@
 #' @export
 
 
-reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300, center = TRUE, scale = FALSE, print = FALSE, 
-    saveTable = FALSE) {
+reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300, center = TRUE, scale = FALSE, print = FALSE, saveTable = FALSE) {
     
-    if (!("prepCells" %in% colnames(pData(cellData)))) {
+  if (cellData@logData$prepCells[1] == "No") {
         warning("It would be wise to run prepCells prior to reduceGenes_pca.", call. = FALSE)
     }
     
-    # In case reduceGenes_var hasn't been run, remove all genes with undetectable expression across all cells, or else PCA will
-    # fail
+    # In case reduceGenes_var hasn't been run, remove all genes with undetectable expression across all cells, or else PCA will fail
     
     log.data <- exprs(cellData)
     
@@ -92,8 +90,7 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
         max_vals_rearr <- data.frame(max_vals[row.names(max_vals_index), ])
         row.names(max_vals_rearr) <- row.names(max_vals_index)
         
-        max_vals_rearr_index <- data.frame(row.names(max_vals_rearr), max_vals_rearr, stacked_raw_PC_vals[, 1], max_vals_index[, 
-            2])
+        max_vals_rearr_index <- data.frame(row.names(max_vals_rearr), max_vals_rearr, stacked_raw_PC_vals[, 1], max_vals_index[, 2])
         
         o <- order(max_vals_rearr_index[, 2], decreasing = TRUE)
         ordered <- max_vals_rearr_index[o, ]
@@ -109,8 +106,8 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
         }
         
         if (saveTable == TRUE) {
-            out1 <- write.table(shaved_genes_table, paste("Shaved Genes on PCs", paste(PCs, collapse = ","), "- Value Method", 
-                genes, "Genes.txt"), row.names = FALSE, col.names = TRUE, sep = "\t", na = "")
+            out1 <- write.table(shaved_genes_table, paste("Shaved Genes on PCs", paste(PCs, collapse = ","), "- Value Method", genes, "Genes.txt"), row.names = FALSE, 
+                col.names = TRUE, sep = "\t", na = "")
         }
         
         
@@ -130,8 +127,7 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
     
     
     if (corr == TRUE) {
-        # Run PCA using FactoMineR, determine correlation of genes with each PC, and get specified number of top correlated genes
-        # from specified PCs
+        # Run PCA using FactoMineR, determine correlation of genes with each PC, and get specified number of top correlated genes from specified PCs
         
         PCA.allgenes <- FactoMineR::PCA(t(exprs(cellData)), scale.unit = scale, ncp = 100, graph = F)
         
@@ -198,8 +194,8 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
         }
         
         if (saveTable == TRUE) {
-            out1 <- write.table(PC.genes.summary, paste("Shaved Genes on PCs", paste(PCs, collapse = ","), "- Corr Method", genes, 
-                "Genes.txt"), row.names = FALSE, col.names = TRUE, sep = "\t", na = "")
+            out1 <- write.table(PC.genes.summary, paste("Shaved Genes on PCs", paste(PCs, collapse = ","), "- Corr Method", genes, "Genes.txt"), row.names = FALSE, 
+                col.names = TRUE, sep = "\t", na = "")
         }
         
         # Reduce expression table by final list of genes
@@ -213,6 +209,8 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
         exprs(cellData) <- shaved_expr_table
         
     }
+    
+    cellData@logData$reduceGenes_pca[1] <- "Yes"
     
     cellData
     

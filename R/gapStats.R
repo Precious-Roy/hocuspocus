@@ -33,14 +33,14 @@
 
 gapStats <- function(cellData, gene_clust = FALSE, fun = "kmeans", max_clust = 25, boot = 100, plot = TRUE, save = FALSE, print = TRUE) {
     
-    hierarchical <- function(x, k) list(cluster = cutree(hclust(dist(x), method = "ward"), k = k))  
-  
+    hierarchical <- function(x, k) list(cluster = cutree(hclust(dist(x), method = "ward"), k = k))
+    
     if (.Platform$OS.type == "windows") {
         quartz <- function() windows()
     }
     
-    if (!("prepCells" %in% colnames(pData(cellData)))) {
-        warning("It would be wise to run prepCells prior to gapStats.", call. = FALSE)
+    if (cellData@logData$prepCells[1] == "No") {
+      warning("It would be wise to run prepCells prior to gapStats.", call. = FALSE)
     }
     
     exprs_matrix <- exprs(cellData)
@@ -49,20 +49,20 @@ gapStats <- function(cellData, gene_clust = FALSE, fun = "kmeans", max_clust = 2
         exprs_matrix <- t(exprs_matrix)
     }
     
-    if (fun == "kmeans"){
-      cg <- clusGap(t(exprs_matrix), FUNcluster = kmeans, K.max = max_clust, B = boot)
+    if (fun == "kmeans") {
+        cg <- clusGap(t(exprs_matrix), FUNcluster = kmeans, K.max = max_clust, B = boot)
     }
     
-    if (fun == "pam"){
-      cg <- clusGap(t(exprs_matrix), FUNcluster = pam, K.max = max_clust, B = boot)
+    if (fun == "pam") {
+        cg <- clusGap(t(exprs_matrix), FUNcluster = pam, K.max = max_clust, B = boot)
     }
     
     if (fun == "hclust") {
-      cg <- clusGap(t(exprs_matrix), FUNcluster = hierarchical, K.max = max_clust, B = boot)
+        cg <- clusGap(t(exprs_matrix), FUNcluster = hierarchical, K.max = max_clust, B = boot)
     }
     
     if (!(fun == "hclust" | fun == "pam" | fun == "kmeans")) {
-        stop("fun must be one of kmeans, pam, or hiearchical.", call.=FALSE)
+        stop("fun must be one of kmeans, pam, or hiearchical.", call. = FALSE)
     }
     
     gap <- cg$Tab[, "gap"]
@@ -86,25 +86,25 @@ gapStats <- function(cellData, gene_clust = FALSE, fun = "kmeans", max_clust = 2
             dev.off
         }
     }
-
-    if (gene_clust == FALSE){
-      out <- paste("kOptC_",fun,sep="")
-      pData(cellData)[,out] <- ""
-      pData(cellData)[1,out] <- k_opt
-      if (print == TRUE){
-        print(paste("Optimal number of cell clusters =", k_opt))
-      }
+    
+    if (gene_clust == FALSE) {
+        out <- paste("kOptC_", fun, sep = "")
+        pData(cellData)[, out] <- ""
+        pData(cellData)[1, out] <- k_opt
+        if (print == TRUE) {
+            print(paste("Optimal number of cell clusters =", k_opt))
+        }
     }
     
-    if (gene_clust == TRUE){
-      out <- paste("kOptG_",fun,sep="")
-      pData(cellData)[,out] <- ""
-      pData(cellData)[1,out] <- k_opt
-      if (print == TRUE){
-        print(paste("Optimal number of gene clusters =", k_opt))
-      }
+    if (gene_clust == TRUE) {
+        out <- paste("kOptG_", fun, sep = "")
+        pData(cellData)[, out] <- ""
+        pData(cellData)[1, out] <- k_opt
+        if (print == TRUE) {
+            print(paste("Optimal number of gene clusters =", k_opt))
+        }
     }
     
-  cellData
-  
+    cellData
+    
 } 

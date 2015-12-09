@@ -34,7 +34,7 @@
 
 prepCells <- function(cellData, LOD = 1, norm = TRUE, batchGroup) {
     
-    if (("prepCells" %in% colnames(pData(cellData)))) {
+    if (cellData@logData$prepCells[1] == "Yes") {
         stop("You have already run prepCells on this data", call. = FALSE)
     }
     
@@ -45,6 +45,9 @@ prepCells <- function(cellData, LOD = 1, norm = TRUE, batchGroup) {
         loggeomeans <- rowMeans(log(data))
         factors <- apply(data, 2, function(cnts) exp(median((log(cnts) - loggeomeans)[is.finite(loggeomeans)])))
         data <- t(t(data)/factors)
+        if (any(is.na(data))) {
+            stop("norm does not work on this dataset, please set to FALSE.", call. = FALSE)
+        }
     }
     
     # Spit warning if LOD<1
@@ -89,9 +92,7 @@ prepCells <- function(cellData, LOD = 1, norm = TRUE, batchGroup) {
         
     }
     
-    pData(cellData)$prepCells <- c("")
-    
-    pData(cellData)$prepCells[1] <- "Yes"
+    cellData@logData$prepCells[1] <- "Yes"
     
     cellData
     

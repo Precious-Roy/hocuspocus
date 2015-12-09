@@ -4,7 +4,7 @@
 \alias{readCells}
 \title{Load all experiment data into R}
 \usage{
-readCells(assay, pheno, feature, experiment)
+readCells(assay, pheno, feature, experiment, color)
 }
 \arguments{
 \item{assay}{Character string specifying the path and filename of a

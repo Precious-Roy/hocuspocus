@@ -25,7 +25,7 @@
 #' @export
 
 
-readCells <- function(assay, pheno, feature, experiment) {
+readCells <- function(assay, pheno, feature, experiment, color) {
     
     if (missing(assay)) {
         stop("You must specify an assay file.", call. = FALSE)
@@ -34,20 +34,25 @@ readCells <- function(assay, pheno, feature, experiment) {
     }
     
     aData <- as.matrix(aData)
-    params <- list(assayData = aData)
+    params <- list(Class="Hocus",assayData = aData)
+    lData <- data.frame(outliers="No", prepCells="No", reduceGenes_var="No", reduceGenes_pca="No", stringsAsFactors=FALSE)
+    lData <- new("AnnotatedDataFrame", data=lData)
+    params$logData <- lData
     
     if (!missing(pheno)) {
         pData <- read.table(pheno, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
         aData <- aData[, row.names(pData)]
+        pData_color<-pData
         pData <- new("AnnotatedDataFrame", data = pData)
         params["phenoData"] <- pData
         params$assayData <- aData
     } else {
-        pData <- data.frame(colnames(aData))
+        pData <- data.frame("GroupID"=1:length(colnames(aData)))
+        row.names(pData)<-colnames(aData)
         pData$GroupID <- "Group1"
-        pData$Group_Colors <- "grey"
+        pData_color<-pData
         pData <- new("AnnotatedDataFrame", data = pData)
-        params["phenoData"] <- pData
+        params$phenoData <- pData
     }
     
     if (!missing(feature)) {
@@ -61,16 +66,41 @@ readCells <- function(assay, pheno, feature, experiment) {
         colnames(fData) <- "GeneID"
         row.names(fData) <- fData$GeneID
         fData <- new("AnnotatedDataFrame", data = fData)
-        params["featureData"] <- fData
+        params$featureData <- fData
     }
     
-    if (!missing(experiment)) {
-        eData <- read.table(experiment, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
-        eData <- do.call(MIAME, as.list(eData))
-        params["experimentData"] <- eData
+    if (!missing(experiment)) { 
+      eData <- read.table(experiment, header = TRUE, sep = "\t", row.names = 1, check.names = FALSE)
+      eData <- new("MIAME", other=as.list(eData))
+      params$experimentData <- eData
     }
     
-    cellData <- do.call(ExpressionSet, params)
+    if (!missing(color) && !missing(pheno)) {
+      cData <- read.table(color, header = TRUE, sep = "\t", check.names = FALSE,stringsAsFactors=FALSE)
+      if (!all(colnames(cData) %in% colnames(pData))) {
+        stop("All column names in the colorData file must match the column names in the phenoData matrix.",call.=FALSE)
+      }
+      cData <- as.list(cData)
+      cData <- lapply(cData, function(x) x[x != ""])
+      if (!all(lengths(cData) == apply(data.frame(pData_color[,names(cData)]), 2, function(x) nlevels(as.factor(x))))){
+        stop("The number of colors for each group in the colorData file must match the number of levels within the corresponding columns of the phenoData matrix.",call.=FALSE)
+      }
+      for (i in 1:length(cData)){
+        names(cData[[i]]) <- unique(pData_color[,names(cData)[i]])
+      }
+      params$colorData <- cData
+    }
+    
+    if (missing(pheno)){
+      cData <- list(GroupID="grey")
+      names(cData[[1]]) <- "Group1"
+      params$colorData <- cData
+    }
+    
+    
+    #params$assayData <- assayDataNew("environment", exprs=aData)
+    params$assayData <- assayDataNew(exprs=aData)
+    cellData <- do.call(new,params)
     cellData
     
 } 

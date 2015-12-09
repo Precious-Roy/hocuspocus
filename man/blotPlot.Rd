@@ -4,7 +4,7 @@
 \alias{blotPlot}
 \title{Generate violin plots with a high density fit (i.e. blot plots).}
 \usage{
-blotPlot(cellData, genes, groups = "GroupID", colors, cols = 3, singleGroup,
+blotPlot(cellData, genes, groups = "GroupID", cols = 1, singleGroup,
   singleColor = "red", order = TRUE, save = FALSE)
 }
 \arguments{
@@ -20,12 +20,6 @@ that contains the names of the groups to which each sample belongs.  The
 blots representing each group in the plots for each gene will be colored
 accordingly. The column length should be the same length as the number of
 samples.}
-
-\item{colors}{Character string specifying the title of the column in pData
-that contains the colors to be used for plotting.  The number of colors
-should be equal to the number of levels in groups.  The order of colors
-corresponds to the order of factor levels in groups.  If nothing is
-specified, random colors from the rainbow function are assigned.}
 
 \item{cols}{Integer specifying the number of columns in which to arrange the
 blot plots.  The number of cols should be less than or equal to the number

@@ -4,9 +4,10 @@
 \alias{pca2D}
 \title{Generate a two-dimensional PCA plot.}
 \usage{
-pca2D(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2), groups,
-  values, gene, colors, logNumeric = TRUE, CR = FALSE, alpha = 0.8,
-  dotsize = 5, bubble = FALSE, bubbleSizes, save = FALSE)
+pca2D(cellData, center = TRUE, scale = FALSE, PCs = c(1, 2),
+  ICA = FALSE, groups, values, gene, colors, logNumeric = TRUE,
+  CR = FALSE, alpha = 0.7, dotsize = 5, bubble = FALSE, bubbleSizes,
+  save = FALSE)
 }
 \arguments{
 \item{cellData}{ExpressionSet object created with readCells (and preferably
@@ -42,12 +43,8 @@ Gene and values cannot be specified simultaneously.  If groups and gene are
 both specified, gene will be used for coloring.  Set bubble to TRUE to
 display group information as well.}
 
-\item{colors}{Character string specifying the title of the column in pData
-that contains the colors to be used for plotting.  If groups is specified,
-length of colors should be equal to the number of levels in groups.  The
-order of colors corresponds to the order of factor levels in groups.  If
-values or gene is specified, length of colors should be 2, or else a
-default black-to-yellow color gradient will be used.}
+\item{colors}{Vector of character strings of length 2 specifying the color range for values or gene.  If
+not specified, a default black-to-yellow color gradient will be used.}
 
 \item{logNumeric}{Boolean specifying whether the numbers in values should be
 transformed to log2 space.}
