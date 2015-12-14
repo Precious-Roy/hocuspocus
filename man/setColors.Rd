@@ -2,11 +2,11 @@
 % Please edit documentation in R/setColors.R
 \name{setColors}
 \alias{setColors}
-\title{}
+\title{Add colors to colorData slot}
 \usage{
 setColors(cellData, groups, colors, auto = FALSE, palette = "rainbow")
 }
 \description{
-
+Add colors for specified groups to the colorData slot in a Hocus object.
 }
 

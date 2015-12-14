@@ -1,6 +1,6 @@
+#' Select a subset of groups in phenoData
 #'
-#'
-#'
+#' Select a subset of specified groups in the phenoData slot of a Hocus object while retaining associated color info in colorData.
 #'
 #' @export
 

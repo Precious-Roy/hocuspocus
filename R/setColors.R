@@ -1,6 +1,6 @@
+#' Add colors to colorData slot
 #'
-#'
-#'
+#' Add colors for specified groups to the colorData slot in a Hocus object.
 #'
 #' @export
 

@@ -7,6 +7,6 @@
 colorData(cellData)
 }
 \description{
-This function returns the information stored in the colorData slot of the Hocus class.
+This function returns the information stored in the colorData slot of a Hocus object.
 }
 

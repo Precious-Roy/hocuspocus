@@ -2,11 +2,11 @@
 % Please edit documentation in R/subGroups.R
 \name{subGroups}
 \alias{subGroups}
-\title{}
+\title{Select a subset of groups in phenoData}
 \usage{
 subGroups(cellData, groups, names)
 }
 \description{
-
+Select a subset of specified groups in the phenoData slot of a Hocus object while retaining associated color info in colorData.
 }
 

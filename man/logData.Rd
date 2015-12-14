@@ -2,11 +2,11 @@
 % Please edit documentation in R/logData.R
 \name{logData}
 \alias{logData}
-\title{}
+\title{Display information in the logData slot}
 \usage{
 logData(cellData)
 }
 \description{
-
+This function returns the information stored in the logData slot of a Hocus object.
 }
 

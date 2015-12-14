@@ -2,13 +2,76 @@
 % Please edit documentation in R/pca1D.R
 \name{pca1D}
 \alias{pca1D}
-\title{}
+\title{Generate a one-dimensional PCA plot.}
 \usage{
 pca1D(cellData, center = TRUE, scale = FALSE, PC = 1, ICA = FALSE,
   groups, values, gene, colors, logNumeric = TRUE, alpha = 0.7,
   dotsize = 5, bubble = FALSE, bubbleSizes, save = FALSE)
 }
-\description{
+\arguments{
+\item{cellData}{ExpressionSet object created with readCells (and preferably
+transformed with prepCells).  It is also helpful to first run
+reduceGenes_var.}
 
+\item{center}{Boolean specifying whether to the center the data prior to PCA.
+This is generally recommended.}
+
+\item{scale}{Boolean specifying whether the data should be scaled prior to
+PCA.  This is generally not recommended unless samples have different units
+(e.g. some samples are counts and some are TPMs).}
+
+\item{groups}{Character string specifying the title of the column in pData
+that contains the names of the groups to which each sample belongs.  The
+dots representing each sample in the plot will be colored by group. The
+column length should be the same length as the number of samples.}
+
+\item{values}{Character string specifying the title of the column in pData
+that contains a vector of numeric values to be plotted as a color gradient
+on the dots in the plot.  The column length should be the same length as
+the number of samples.  Gene and values cannot be specified simultaneously.
+If groups and values are both specified, gene will be used for coloring.
+Set bubble to TRUE to display group information as well.}
+
+\item{gene}{Character string specifying a gene whose expression values will
+be plotted a color gradient on the dots in the plot.  One gene name should
+be specified, and the gene must be present within the expression table.
+Gene and values cannot be specified simultaneously.  If groups and gene are
+both specified, gene will be used for coloring.  Set bubble to TRUE to
+display group information as well.}
+
+\item{colors}{Vector of character strings of length 2 specifying the color range for values or gene.  If
+not specified, a default black-to-yellow color gradient will be used.}
+
+\item{logNumeric}{Boolean specifying whether the numbers in values should be
+transformed to log2 space.}
+
+\item{alpha}{Numeric specifying the transparency (from 0 to 1) level of the
+dot colors.}
+
+\item{dotsize}{Numeric specifying the size of the dots in the plot.}
+
+\item{bubble}{Boolean specifying whether dots of different sizes should be
+plotted to display information about another variable on the plot.}
+
+\item{bubbleSizes}{Vector of numerics specifying the dot sizes for each group
+within groups.  Length of bubbleSizes should be the same length as groups.
+If bubbleSizes is not specified, default sizes will be generated according
+to the levels in the groups column.  Useful for displaying group
+information along with values or gene.  Additionally, can be used to
+indicate additional information about groups.  E.g. if the levels in groups
+are 'A1', 'B1', 'C2', and 'D2', bubbleSizes could be c(3,3,6,6) to indicate
+the '1' and '2' components of the groups with different dot sizes.}
+
+\item{save}{Boolean specifying whether to save the resultant plot as a .tiff
+file.}
+
+\item{PCs}{Integer specifying the PC to plot.}
+}
+\value{
+PCA plot for the specified PC.
+}
+\description{
+Takes ExpressionSet object, performs PCA on the transposed expression matrix,
+then plots the projections of the sample scores on the specified PC.
 }
 
