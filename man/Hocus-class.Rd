@@ -3,8 +3,8 @@
 \docType{class}
 \name{Hocus-class}
 \alias{Hocus-class}
-\title{}
+\title{The Hocus class}
 \description{
-
+An extension of Bioconductor's ExpressionSet class, which stores all single cell expression data.
 }
 

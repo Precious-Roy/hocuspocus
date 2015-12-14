@@ -2,11 +2,11 @@
 % Please edit documentation in R/colorData.R
 \name{colorData}
 \alias{colorData}
-\title{}
+\title{Display information in the colorData slot}
 \usage{
 colorData(cellData)
 }
 \description{
-
+This function returns the information stored in the colorData slot of the Hocus class.
 }
 
