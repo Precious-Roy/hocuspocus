@@ -55,8 +55,8 @@ reduceGenes_pca <- function(cellData, corr = TRUE, PCs = c(1, 2, 3), genes = 300
     
     log.data <- exprs(cellData)
     
-    expr.genes <- which(rowSums(log.data > 0.01) > (0.02))
-    
+    expr.genes <- which(rowSums(log.data > 0) > 0)
+  
     log.data <- log.data[expr.genes, ]
     
     exprs(cellData) <- log.data

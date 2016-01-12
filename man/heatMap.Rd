@@ -8,7 +8,7 @@ heatMap(cellData, clusterCellsBy = "hierarchical",
   clusterGenesBy = "hierarchical", cellGroups, cellOrder, geneGroups,
   geneOrder, center = NA, bars, colors, logNumeric = TRUE,
   mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", "red4"),
-  save = FALSE)
+  w = 8, h = 10, font = 10, save = FALSE)
 }
 \arguments{
 \item{cellData}{ExpressionSet object created with readCells (and preferably

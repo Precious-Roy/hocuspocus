@@ -68,7 +68,7 @@
 #' @export
 
 heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = "hierarchical", cellGroups, cellOrder, geneGroups, geneOrder, center = NA, 
-    bars, colors, logNumeric = TRUE, mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", "red4"), save = FALSE) {
+    bars, colors, logNumeric = TRUE, mapColors = c("midnightblue", "dodgerblue3", "mistyrose", "red2", "red4"), w=8,h=10,font=10,save = FALSE) {
     
     if (.Platform$OS.type == "windows") {
         quartz <- function() windows()
@@ -209,12 +209,12 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
         
         quartz()
         NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, annColors = annColors, color = mapColors, 
-            breaks = center, width = 8, height = 10, fontsize = 10)
+            breaks = center, width = w, height = h, fontsize = font)
         
         
         if (save == TRUE) {
             a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = c("euclidean", "ward"), revC = F, annCol = annCol, annColors = annColors, 
-                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+                color = mapColors, breaks = center, width = w, height = h, fontsize = font, file = paste("Heatmap.tiff"))
         }
     }
     
@@ -222,12 +222,12 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
         
         quartz()
         NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-            width = 8, height = 10, fontsize = 10)
+            width = w, height = h, fontsize = font)
         
         
         if (save == TRUE) {
             a <- NMF::aheatmap(shaved_expr_table, Rowv = c("euclidean", "ward"), Colv = o, revC = F, annCol = annCol, annColors = annColors, color = mapColors, 
-                breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+                breaks = center, width = w, height = h, fontsize = font, file = paste("Heatmap.tiff"))
         }
     }
     
@@ -237,12 +237,12 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
         
         quartz()
         NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, color = mapColors, breaks = center, 
-            width = 8, height = 10, fontsize = 10)
+            width = w, height = h, fontsize = font)
         
         
         if (save == TRUE) {
             a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = o, revC = F, annRow = genes, annCol = annCol, annColors = annColors, color = mapColors, 
-                breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+                breaks = center, width = w, height = h, fontsize = font, file = paste("Heatmap.tiff"))
         }
     }
     
@@ -250,12 +250,12 @@ heatMap <- function(cellData, clusterCellsBy = "hierarchical", clusterGenesBy = 
         
         quartz()
         NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, 
-            color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10)
+            color = mapColors, breaks = center, width = w, height = h, fontsize = font)
         
         
         if (save == TRUE) {
             a <- NMF::aheatmap(shaved_expr_table, Rowv = og, Colv = c("euclidean", "ward"), revC = F, annRow = gene_groups, annCol = annCol, annColors = annColors, 
-                color = mapColors, breaks = center, width = 8, height = 10, fontsize = 10, file = paste("Heatmap.tiff"))
+                color = mapColors, breaks = center, width = w, height = h, fontsize = font, file = paste("Heatmap.tiff"))
         }
     }
     

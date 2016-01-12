@@ -89,8 +89,8 @@ gapStats <- function(cellData, gene_clust = FALSE, fun = "kmeans", max_clust = 2
     
     if (gene_clust == FALSE) {
         out <- paste("kOptC_", fun, sep = "")
-        pData(cellData)[, out] <- ""
-        pData(cellData)[1, out] <- k_opt
+        #pData(cellData)[, out] <- ""
+        #pData(cellData)[1, out] <- k_opt
         if (print == TRUE) {
             print(paste("Optimal number of cell clusters =", k_opt))
         }
@@ -98,8 +98,8 @@ gapStats <- function(cellData, gene_clust = FALSE, fun = "kmeans", max_clust = 2
     
     if (gene_clust == TRUE) {
         out <- paste("kOptG_", fun, sep = "")
-        pData(cellData)[, out] <- ""
-        pData(cellData)[1, out] <- k_opt
+        #pData(cellData)[, out] <- ""
+        #pData(cellData)[1, out] <- k_opt
         if (print == TRUE) {
             print(paste("Optimal number of gene clusters =", k_opt))
         }

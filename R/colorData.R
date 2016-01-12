@@ -12,6 +12,12 @@ colorData <- function(cellData){
   
 }
 
+#' Display information in the colorData slot
+#'
+#' This function returns the information stored in the colorData slot of a Hocus object.
+#'
+#' @export
+
 cData <- function(cellData){
   
   cellData@colorData
