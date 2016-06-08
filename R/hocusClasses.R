@@ -10,5 +10,5 @@ setClass( "Hocus",
           slots = c(colorData = "list",
                     logData = "AnnotatedDataFrame"),
           prototype = prototype( new( "VersionedBiobase",
-                                      versions = c( classVersion("ExpressionSet"), Hocus = "1.0.0" ) ))
+                                      versions = c( Biobase:::classVersion("ExpressionSet"), Hocus = "1.0.0" ) ))
 )
